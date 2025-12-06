@@ -1,9 +1,10 @@
 /*
  * =================================================================
- * Nano Banana AI 工作台主逻辑脚本 (v28 - Instant Switch Fix)
+ * Nano Banana AI 工作台主逻辑脚本 (v29 - Debounce Fix)
  * 修改日志：
- * 1. [修复] 点击生成瞬间，立即切换到“我的”视图并清空画布，防止渲染卡片与灵感图混杂
- * 2. [优化] 保持生成成功后的自动刷新逻辑
+ * 1. [修复] 引入 debounce 防抖机制，解决快速切换 Tab 导致的 429 请求错误问题。
+ * 2. [保留] 点击生成瞬间，立即切换到“我的”视图并清空画布，防止渲染卡片与灵感图混杂。
+ * 3. [保留] 保持生成成功后的自动刷新逻辑。
  * =================================================================
  */
 
@@ -200,14 +201,17 @@ async function handleGenerateClick(e) {
     const myWorksTab = document.getElementById('myWorksTab');
     const inspirationTab = document.getElementById('inspirationTab');
     const container = document.querySelector('.masonry-grid');
-    const mainContentTitle = document.querySelector('.flex-1 h2');
+    const mainContentTitle = document.querySelector('.flex-1 h2'); // 在 main.js 中这个选择器可能无效，因为 h2 在 index.html 的 right-content-panel 中
 
     // 2.1 PC端 Tab 样式切换
     if (myWorksTab && inspirationTab) {
-        switchTab(myWorksTab, inspirationTab);
+        // 直接切换样式，而不是模拟点击，避免触发不必要的逻辑
+        myWorksTab.className = "px-4 lg:px-6 py-2 rounded-full bg-blue-500/10 text-blue-500 text-xs font-bold transition-all flex items-center gap-2";
+        inspirationTab.className = "px-4 lg:px-6 py-2 rounded-full text-gray-500 hover:text-blue-500 transition-all text-xs font-bold flex items-center gap-2";
     }
     // 更新标题
-    if (mainContentTitle) mainContentTitle.textContent = '我的创作';
+    const galleryTitle = document.getElementById('galleryTitle');
+    if (galleryTitle) galleryTitle.textContent = '我的创作历史';
 
     // 2.2 移动端 View 切换
     if (window.innerWidth <= 1024) {
@@ -232,7 +236,6 @@ async function handleGenerateClick(e) {
     }
 
     // 2.3 【关键】清空当前画布（移除灵感图片）
-    // 这样占位卡片就会显示在空白区域，而不是混在灵感图里
     if (container) {
         container.innerHTML = '';
     }
@@ -276,26 +279,16 @@ async function handleGenerateClick(e) {
             const images = Array.isArray(result.data) ? result.data : [result.data];
             
             if (images.length > 0) {
-                // 移除占位卡片 (因为我们要刷新整个列表，所以直接移除即可)
                 generatingCardIds.forEach(id => document.getElementById(id)?.remove());
-                
                 showSuccessToast(`生成成功！共生成 ${images.length} 张图片`);
-
                 // 5. 强制刷新“我的作品”列表数据
-                // 优先调用挂载在 window 上的全局函数
-                if (typeof window.loadMyWorksFromBackend === 'function') {
-                    window.loadMyWorksFromBackend();
-                } else {
-                    fetchAndDisplayMyWorks();
-                }
-
+                fetchAndDisplayMyWorks();
             } else {
                 generatingCardIds.forEach(id => document.getElementById(id)?.remove());
                 throw new Error('无法解析服务器返回的图片信息');
             }
 
         } else {
-            // 处理 API 返回的业务错误
             generatingCardIds.forEach(id => document.getElementById(id)?.remove());
             throw new Error(result.error || '生成失败，未知原因');
         }
@@ -303,11 +296,7 @@ async function handleGenerateClick(e) {
         console.error('生成/编辑图片错误:', error);
         generatingCardIds.forEach(id => document.getElementById(id)?.remove());
         showErrorToast(error.message || '图片生成/编辑失败');
-        
-        // 出错后，重新加载列表，避免页面空白
-        if (typeof window.loadMyWorksFromBackend === 'function') {
-            window.loadMyWorksFromBackend();
-        }
+        fetchAndDisplayMyWorks();
     } finally {
         isGenerating = false;
         setButtonLoading(generateBtn, false, "立即生成");
@@ -380,7 +369,7 @@ async function editImage(prompt, imageFiles) {
     if (selectedModel.startsWith('nano-banana-2')) {
         const ratioSelect = document.getElementById('aspectRatioSelect');
         const ratio = ratioSelect ? ratioSelect.value : '1:1';
-        const sizeMap = { '1:1': { w: 1024, h: 1024 }, '16:9': { w: 1024, h: 576 }, '9:16': { w: 576, h: 1024 }, '4:3': { w: 1024, h: 768 }, '3:4': { w: 768, h: 1024 } };
+        const sizeMap = { '1:1': { w: 1024, h: 1024 }, '16:9': { w: 1024, h: 576 }, '9:16': { w: 576, h: 1024 }, '4:3': { w: 1024, h: 768 }, '3:4': { w: 768, h: 1024 }, '21:9': { w: 1344, h: 576 } };
         const dims = sizeMap[ratio] || sizeMap['1:1'];
 
         formData.append('aspect_ratio', ratio); 
@@ -417,7 +406,7 @@ async function generateImage(prompt) {
     if (selectedModel.startsWith('nano-banana-2')) {
         const ratioSelect = document.getElementById('aspectRatioSelect');
         const ratio = ratioSelect ? ratioSelect.value : '1:1';
-        const sizeMap = { '1:1': { w: 1024, h: 1024 }, '16:9': { w: 1024, h: 576 }, '9:16': { w: 576, h: 1024 }, '4:3': { w: 1024, h: 768 }, '3:4': { w: 768, h: 1024 } };
+        const sizeMap = { '1:1': { w: 1024, h: 1024 }, '16:9': { w: 1024, h: 576 }, '9:16': { w: 576, h: 1024 }, '4:3': { w: 1024, h: 768 }, '3:4': { w: 768, h: 1024 }, '21:9': { w: 1344, h: 576 } };
         const dims = sizeMap[ratio] || sizeMap['1:1'];
 
         requestBody.aspect_ratio = ratio;
@@ -459,23 +448,28 @@ function checkAuthStatus() {
 function initializeEventListeners() {
     const inspirationTab = document.getElementById('inspirationTab');
     const myWorksTab = document.getElementById('myWorksTab');
-    const mainContentTitle = document.querySelector('.flex-1 h2');
-    const mainContentArea = document.querySelector('.masonry-grid');
+    const galleryTitle = document.getElementById('galleryTitle');
 
-    if (inspirationTab && myWorksTab && mainContentTitle && mainContentArea) {
+    // ================== 🔥 DEBOUNCE FIX START 🔥 ==================
+    if (inspirationTab && myWorksTab) {
+        const debouncedLoadInspirations = debounce(loadInspirationsFromBackend, 300);
+        const debouncedLoadMyWorks = debounce(fetchAndDisplayMyWorks, 300);
+
         inspirationTab.addEventListener('click', () => {
-            switchTab(inspirationTab, myWorksTab);
-            mainContentTitle.textContent = '创意灵感库';
-            if (originalInspirationContent) {
-                mainContentArea.innerHTML = originalInspirationContent;
-            }
+             inspirationTab.className = "px-4 lg:px-6 py-2 rounded-full bg-blue-500/10 text-blue-500 text-xs font-bold transition-all flex items-center gap-2";
+             myWorksTab.className = "px-4 lg:px-6 py-2 rounded-full text-gray-500 hover:text-blue-500 transition-all text-xs font-bold flex items-center gap-2";
+             if (galleryTitle) galleryTitle.innerText = "创意灵感库";
+             debouncedLoadInspirations(); 
         });
+
         myWorksTab.addEventListener('click', () => {
-            switchTab(myWorksTab, inspirationTab);
-            mainContentTitle.textContent = '我的创作';
-            fetchAndDisplayMyWorks();
+             myWorksTab.className = "px-4 lg:px-6 py-2 rounded-full bg-blue-500/10 text-blue-500 text-xs font-bold transition-all flex items-center gap-2";
+             inspirationTab.className = "px-4 lg:px-6 py-2 rounded-full text-gray-500 hover:text-blue-500 transition-all text-xs font-bold flex items-center gap-2";
+             if (galleryTitle) galleryTitle.innerText = "我的创作历史";
+             debouncedLoadMyWorks();
         });
     }
+    // =================== 🔥 DEBOUNCE FIX END 🔥 ===================
 
     document.getElementById('generateBtn')?.addEventListener('click', handleGenerateClick);
 
@@ -498,8 +492,7 @@ function initializeEventListeners() {
     const charCount = document.getElementById('charCount');
     if (promptInput && charCount) {
         promptInput.addEventListener('input', () => {
-            charCount.textContent = `${promptInput.value.length}/2000`;
-            charCount.classList.toggle('text-yellow-400', promptInput.value.length > 1800);
+            charCount.textContent = `${promptInput.value.length}`;
         });
     }
 
@@ -575,6 +568,8 @@ function initializeEventListeners() {
             contentDiv.textContent = '加载公告失败，请稍后重试。';
         }
     }
+
+    // 自动加载灵感的逻辑现在由 index.html 控制（或已删除），main.js 不再负责首次加载
 }
 
 
@@ -584,27 +579,35 @@ function initializeEventListeners() {
 
 async function fetchAndDisplayMyWorks() {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    const container = document.querySelector('.masonry-grid');
+    const container = document.getElementById('inspirationContainer'); // 使用灵感容器来显示作品
     if (!token || !container) return;
 
-    container.innerHTML = `<p class="text-center text-gray-400 p-8 col-span-3">正在加载...</p>`;
+    container.innerHTML = `<div class="text-center text-gray-500 text-xs w-full py-10 col-span-3"><i class="fas fa-circle-notch fa-spin mr-2"></i> 正在加载我的创作...</div>`;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/image/history?t=`+new Date().getTime(), {
+        const response = await fetch(`${API_BASE_URL}/image/history?t=${new Date().getTime()}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const result = await response.json();
 
-        if (!response.ok || !result.success) throw new Error(result.error);
+        if (!response.ok) throw new Error(result.error || `服务器错误: ${response.status}`);
+        
+        if (!result.success) { // 处理业务逻辑错误
+            if (response.status === 429) {
+                throw new Error("请求过于频繁，请稍后再试");
+            }
+            throw new Error(result.error || '加载失败');
+        }
 
-        container.innerHTML = '';
+        container.innerHTML = ''; // 清空加载提示
         if (result.data && result.data.length > 0) {
             result.data.forEach(imageData => container.appendChild(createWorkCard(imageData)));
         } else {
-            container.innerHTML = `<p class="text-center text-gray-400 p-8 col-span-3">暂无作品</p>`;
+            container.innerHTML = `<div class="text-center text-gray-500 text-xs w-full py-10 col-span-3">你还没有生成过图片，快去创作吧！</div>`;
         }
     } catch (error) {
-        container.innerHTML = `<p class="text-center text-red-400 p-8 col-span-3">加载失败</p>`;
+        console.error("加载作品失败:", error);
+        container.innerHTML = `<div class="text-center text-red-400 text-xs w-full py-10 col-span-3">加载失败: ${error.message}</div>`;
     }
 }
 
@@ -618,7 +621,8 @@ function createWorkCard(imageData) {
         if (width && height) aspectRatioStyle = `aspect-ratio: ${width / height};`;
     }
     
-    const imgUrl = imageData.image_url || imageData.url;
+    // 使用暴力路径修复函数来确保 URL 正确
+    const imgUrl = window.fixImageUrl ? window.fixImageUrl(imageData.image_url || imageData.url) : (imageData.image_url || imageData.url);
 
     card.innerHTML = `
         <div class="component-tertiary rounded-xl overflow-hidden hover:ring-2 hover:ring-blue-500/50 transition-all duration-300 shadow-lg border border-white/5 flex flex-col h-full bg-[#1e1e1e]">
@@ -655,28 +659,25 @@ function createWorkCard(imageData) {
     const deleteBtn = card.querySelector('.delete-btn');
     deleteBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        deleteImage(deleteBtn.dataset.id);
+        deleteImage(deleteBtn.dataset.id, card);
     });
 
     return card;
 }
 
+
 async function useAsReference(imgUrl) {
     console.log("⚡️ 正在尝试垫图:", imgUrl);
-
     if (uploadedImageFiles.length >= 3) {
         showErrorToast('参考图已满 3 张，请先删除旧图');
         return;
     }
-
     const uploadBtn = document.getElementById('uploadBtn');
     const originalText = uploadBtn ? uploadBtn.innerHTML : '';
-    
     if(uploadBtn) {
         uploadBtn.disabled = true;
         uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 加载中...';
     }
-
     try {
         showToast('正在获取图片资源...', 'success');
         const response = await fetch(imgUrl);
@@ -688,16 +689,9 @@ async function useAsReference(imgUrl) {
         uploadedImageFiles = [...uploadedImageFiles, file];
         renderUploadedImages();
         showSuccessToast('✨ 已设为参考图，可继续修改提示词');
-
         if (window.innerWidth < 1024) {
-             const sidebar = document.querySelector('.side-nav-container');
-             const overlay = document.getElementById('menuOverlay');
-             if (sidebar && overlay) {
-                 sidebar.style.transform = 'translateX(0%)';
-                 overlay.classList.remove('hidden');
-             }
+            document.getElementById('mobileTabCreate')?.click();
         }
-
     } catch (error) {
         console.error("垫图失败:", error);
         showErrorToast('无法获取该图片 (可能是跨域限制)');
@@ -784,17 +778,18 @@ function removeUploadedImage(uploadId) {
 // 8. 其他工具函数 (Utilities)
 // ==========================================
 
+function debounce(func, delay) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
 function handleLogout() {
     localStorage.clear();
     sessionStorage.clear();
     window.location.href = '/login.html';
-}
-
-function switchTab(activeTab, inactiveTab) {
-    activeTab.classList.add('bg-white', 'text-gray-900');
-    activeTab.classList.remove('text-gray-300');
-    inactiveTab.classList.remove('bg-white', 'text-gray-900');
-    inactiveTab.classList.add('text-gray-300');
 }
 
 function toggleTheme() {
@@ -823,20 +818,20 @@ function setButtonLoading(button, loading, originalText) {
         button.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>处理中...`;
     } else {
         button.disabled = false;
-        button.innerHTML = `<span>${originalText}</span><span class="text-2xl animate-pulse ml-3">💎</span>`;
+        button.innerHTML = `<span>${originalText}</span><i class="fas fa-gem text-lg animate-pulse ml-2"></i>`;
     }
 }
 
 function downloadImage(url, name) {
     const a = document.createElement('a');
     a.href = url;
-    a.download = (name || 'image') + '.png';
+    a.download = (name ? name.substring(0, 20) : 'ai_image') + '.png';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
 }
 
-async function deleteImage(id) {
+async function deleteImage(id, cardElement) {
     if (!confirm('确定删除这张图片吗?')) return;
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (!token) {
@@ -851,12 +846,12 @@ async function deleteImage(id) {
         const data = await response.json();
         if (response.ok && (data.success || data.code === 200)) {
             showSuccessToast('✅ 图片已删除');
-            const btn = document.querySelector(`.delete-btn[data-id="${id}"]`);
-            if (btn) {
-                const item = btn.closest('.masonry-item');
-                if(item) item.remove();
+            if (cardElement) {
+                 cardElement.style.transition = 'opacity 0.3s, transform 0.3s';
+                 cardElement.style.opacity = '0';
+                 cardElement.style.transform = 'scale(0.9)';
+                 setTimeout(() => cardElement.remove(), 300);
             }
-            fetchAndDisplayMyWorks();
         } else {
             throw new Error(data.error || data.message || '删除失败');
         }
@@ -892,5 +887,26 @@ function showToast(msg, type = 'success') {
     }, 3000);
 }
 
-function showSuccessToast(msg) { showToast(msg, 'success'); }
-function showErrorToast(msg) { showToast(msg, 'error'); }
+// 挂载到 window，方便 HTML 中调用
+window.showSuccessToast = (msg) => showToast(msg, 'success');
+window.showErrorToast = (msg) => showToast(msg, 'error');
+
+// 全局加载灵感和历史的函数，供 index.html 中的代码调用
+async function loadInspirationsFromBackend() {
+    const container = document.getElementById('inspirationContainer');
+    if (!container) return;
+    container.innerHTML = '<div class="text-center text-gray-500 text-xs w-full py-10"><i class="fas fa-circle-notch fa-spin mr-2"></i> 正在从云端获取灵感...</div>';
+    try {
+        const res = await fetch('/api/image/inspirations');
+        const json = await res.json();
+        if (json.success && json.data.length > 0) {
+            container.innerHTML = ''; 
+            json.data.forEach(item => { if(window.renderImageItem) window.renderImageItem(container, item, true); });
+        } else {
+            container.innerHTML = '<div class="text-center text-gray-500 text-xs w-full py-10">暂无灵感数据</div>';
+        }
+    } catch (error) {
+        console.error('加载灵感失败:', error);
+        container.innerHTML = '<div class="text-center text-gray-500 text-xs w-full py-10">加载失败，请刷新重试</div>';
+    }
+}
